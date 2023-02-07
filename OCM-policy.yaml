@@ -1,91 +1,120 @@
 apiVersion: policy.open-cluster-management.io/v1
 kind: Policy
 metadata:
-  name: policy-nspolicy
+  name: policy-nspolicy1
   namespace: ""
   annotations:
     policy.open-cluster-management.io/standards: NIST SP 800-53
     policy.open-cluster-management.io/categories: SC System and Communications Protection
     policy.open-cluster-management.io/controls: SC-7 Boundary Protection
 spec:
-  namespaceSelector:
-    exclude:
-      - '{{ fromClusterClaim "name" }}'
   remediationAction: enforce
   disabled: false
   policy-templates:
     - objectDefinition:
-      apiVersion: config.gatekeeper.sh/v1alpha1
-      kind: Config
-      metadata:
-        name: config
-        namespace: openshift-gatekeeper-system
-      spec:
-        match:
-          - excludedNamespaces:
-              - default
-              - kube-system
-              - kube-public
-              - openshift-kube-apiserver
-              - openshift-monitoring
-              - open-cluster-management-agent
-              - open-cluster-management
-              - open-cluster-management-agent-addon
-              - openshift-sdn
-              - openshift-machine-config-operator
-              - openshift-machine-api
-              - openshift-ingress-operator
-              - openshift-ingress
-              - sdn-controller
-              - openshift-cluster-csi-drivers
-              - openshift-kube-controller-manager-operator
-              - openshift-kube-controller-manager
-            processes:
-              - "*"
-  object-templates:
-    - complianceType: musthave
-      objectDefinition:
-        apiVersion: templates.gatekeeper.sh/v1alpha1
-        kind: ConstraintTemplate
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
         metadata:
-          name: blockednamespace
-          labels:
-            app: namespace-whitelisting
+          name: policy-nspolicy1
         spec:
-          crd:
-            spec:
-              names:
+          remediationAction: enforce
+          severity: medium
+          namespaceSelector:
+            exclude:
+              - '{{ fromClusterClaim "name" }}'
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: config.gatekeeper.sh/v1alpha1
+                kind: Config
+                metadata:
+                  name: config
+                  namespace: openshift-gatekeeper-system
+                spec:
+                  match:
+                    - excludedNamespaces:
+                        - default
+                        - kube-system
+                        - kube-public
+                        - openshift-kube-apiserver
+                        - openshift-monitoring
+                        - open-cluster-management-agent
+                        - open-cluster-management
+                        - open-cluster-management-agent-addon
+                        - openshift-sdn
+                        - openshift-machine-config-operator
+                        - openshift-machine-api
+                        - openshift-ingress-operator
+                        - openshift-ingress
+                        - sdn-controller
+                        - openshift-cluster-csi-drivers
+                        - openshift-kube-controller-manager-operator
+                        - openshift-kube-controller-manager
+                  processes:
+                    - "*"
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: policy-nspolicy-blocking2
+        spec:
+          remediationAction: enforce
+          severity: medium
+          namespaceSelector:
+            exclude:
+              - '{{ fromClusterClaim "name" }}'
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: templates.gatekeeper.sh/v1alpha1
+                kind: ConstraintTemplate
+                metadata:
+                  name: blockednamespace
+                  labels:
+                    app: namespace-whitelisting
+                spec:
+                  crd:
+                    spec:
+                      names:
+                        kind: BlockedNamespace
+                  targets:
+                    - target: admission.k8s.gatekeeper.sh
+                      rego: >
+                        package k8sconstraints.example violation[{"msg": msg}] {
+                           input.request.object.kind == "Namespace"
+                           #cluster_name := input.template.labels["cluster-name"] 
+                           namespace_name = input.request.object.metadata.name
+                           whitelist := input.parameters.name
+                           #if not cluster_name == namespace_name
+                           not whitelist[namespace_name]
+                          msg := sprintf("Namespace %v is not in the whitelist of allowed namespaces", [namespace_name])
+                        }   
+    - objectDefinition:
+        apiVersion: policy.open-cluster-management.io/v1
+        kind: ConfigurationPolicy
+        metadata:
+          name: policy-nspolicy-blocking2
+        spec:
+          remediationAction: enforce
+          severity: medium
+          namespaceSelector:
+            exclude:
+              - '{{ fromClusterClaim "name" }}'
+          object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: constraints.gatekeeper.sh/v1alpha1
                 kind: BlockedNamespace
-          targets:
-            - target: admission.k8s.gatekeeper.sh
-              rego: >
-                package k8sconstraints.example
-
-
-                violation[{"msg": msg}] {
-                   input.request.object.kind == "Namespace"
-                   #cluster_name := input.template.labels["cluster-name"] 
-                   namespace_name = input.request.object.metadata.name
-                   whitelist := input.parameters.name
-                   #if not cluster_name == namespace_name
-                   not whitelist[namespace_name]
-                   msg := sprintf("Namespace %v is not in the whitelist of allowed namespaces", [namespace_name])
-                }
-      object-templates:
-        - complianceType: musthave
-          objectDefinition:
-            apiVersion: constraints.gatekeeper.sh/v1alpha1
-            kind: BlockedNamespace
-            metadata:
-              name: blocking-namespace
-            spec:
-              enforcementAction: deny
-              match:
-                kinds:
-                  - apiGroups:
-                      - ""
+                metadata:
+                  name: blocking-namespace
+                spec:
+                  enforcementAction: deny
+                  match:
                     kinds:
-                      - Namespace
+                      - apiGroups:
+                          - ""
+                        kinds:
+                          - Namespace
               parameters:
                 name:
                   - test1
@@ -95,29 +124,25 @@ spec:
 apiVersion: policy.open-cluster-management.io/v1
 kind: PlacementBinding
 metadata:
-  name: policy-nspolicy-placement
-  namespace: policy
+  name: policy-nspolicy1-placement
+  namespace: default
 placementRef:
-  name: policy-nspolicy-placement
+  name: policy-nspolicy1-placement
   kind: PlacementRule
   apiGroup: apps.open-cluster-management.io
 subjects:
-  - name: policy-nspolicy
+  - name: policy-nspolicy1
     kind: Policy
     apiGroup: policy.open-cluster-management.io
 ---
 apiVersion: apps.open-cluster-management.io/v1
 kind: PlacementRule
 metadata:
-  name: policy-nspolicy-placement
-  namespace: policy
+  name: policy-nspolicy1-placement
+  namespace: default
 spec:
   clusterConditions:
     - status: "True"
       type: ManagedClusterConditionAvailable
-  #clusterSelector:
-   # matchExpressions:
-    #  - key: environment
-     #   operator: In
-      #  values:
-       #   - local-cluster
+  clusterSelector:
+    matchExpressions: []
