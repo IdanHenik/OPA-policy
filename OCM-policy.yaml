@@ -1,13 +1,16 @@
 apiVersion: policy.open-cluster-management.io/v1
 kind: Policy
 metadata:
-  name: policy-nsolicy
+  name: policy-nspolicy
   namespace: policy
   annotations:
     policy.open-cluster-management.io/standards: NIST SP 800-53
     policy.open-cluster-management.io/categories: SC System and Communications Protection
     policy.open-cluster-management.io/controls: SC-7 Boundary Protection
 spec:
+  namespaceSelector:
+    exclude:
+    - '{{ fromClusterClaim "name" }}'
   remediationAction: enforce
   disabled: false
   policy-templates:
