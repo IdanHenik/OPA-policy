@@ -115,8 +115,8 @@ spec:
                           - ""
                         kinds:
                           - Namespace
-              parameters:
-                name: ( test1.test2,test3 )
+                  parameters:     
+                    name: ("test1","test2","test3")
                  
 ---
 apiVersion: policy.open-cluster-management.io/v1
