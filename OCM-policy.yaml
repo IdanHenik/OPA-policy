@@ -29,7 +29,7 @@ spec:
                 kind: Config
                 metadata:
                   name: config
-                  namespace: openshift-gatekeeper-system
+                  namespace: gatekeeper-system
                 spec:
                   match:
                     - excludedNamespaces:
@@ -116,10 +116,8 @@ spec:
                         kinds:
                           - Namespace
               parameters:
-                name:
-                  - test1
-                  - test2
-                  - test3
+                name: ( test1.test2,test3 )
+                 
 ---
 apiVersion: policy.open-cluster-management.io/v1
 kind: PlacementBinding
