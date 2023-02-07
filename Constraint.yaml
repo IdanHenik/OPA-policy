@@ -1,0 +1,14 @@
+apiVersion: constraints.gatekeeper.sh/v1alpha1
+kind: BlockedNamespace
+metadata:
+  name: blocking-namespace
+spec:
+  enforcementAction: deny
+  match:
+    kinds:
+    - apiGroups: [""]
+      kinds: ["Namespace"]
+  parameters:
+    name: ["test1","test2","test3"]
+   
+   
