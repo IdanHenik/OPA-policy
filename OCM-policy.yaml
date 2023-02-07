@@ -93,7 +93,7 @@ spec:
         apiVersion: policy.open-cluster-management.io/v1
         kind: ConfigurationPolicy
         metadata:
-          name: policy-nspolicy-blocking2
+          name: policy-nspolicy-blocking3
         spec:
           remediationAction: enforce
           severity: medium
