@@ -1,0 +1,20 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: label-constraint-template-job
+spec:
+  template:
+    spec:
+      containers:
+      - name: label-constraint-template
+        image: bash
+        command:
+        - bash
+        - "-c"
+        - |
+          # Get the cluster name
+          CLUSTER_NAME=$(kubectl config current-context)
+          
+          # Label the constraint template with the cluster name
+          kubectl label constrainttemplate BlockedNamespace cluster-name=$CLUSTER_NAME
+      restartPolicy: Never
