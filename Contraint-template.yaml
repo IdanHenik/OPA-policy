@@ -16,8 +16,10 @@ spec:
         
         violation[{"msg": msg}] {
             input.request.object.kind == "Namespace"
+            cluster_name := input.template.labels["cluster-name"] 
             namespace_name = input.request.object.metadata.name
             whitelist := input.parameters.name
+            if not cluster_name == namespace_name
             not whitelist[namespace_name]
             msg := sprintf("Namespace %v is not in the whitelist of allowed namespaces", [namespace_name])
         }
