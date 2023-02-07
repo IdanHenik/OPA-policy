@@ -7,14 +7,15 @@ spec:
     spec:
       containers:
       - name: label-constraint-template
-        image: bash
+        image: openshift4/ose-cli:latest
         command:
         - bash
         - "-c"
         - |
           # Get the cluster name
-          CLUSTER_NAME=$(kubectl config current-context)
+          CLUSTER_NAME=$(oc config current-context)
           
-          # Label the constraint template with the cluster name
-          kubectl label constrainttemplate BlockedNamespace cluster-name=$CLUSTER_NAME
+          # Label the constraint template with the cluster name 
+          oc label constrainttemplate BlockedNamespace cluster-name=$CLUSTER_NAME
+          # (O) using oc patch as well
       restartPolicy: Never
