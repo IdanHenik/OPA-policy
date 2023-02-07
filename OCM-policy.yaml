@@ -50,8 +50,8 @@ spec:
                         - openshift-cluster-csi-drivers
                         - openshift-kube-controller-manager-operator
                         - openshift-kube-controller-manager
-                  processes:
-                    - "*"
+                        processes:
+                        - "*"
     - objectDefinition:
         apiVersion: policy.open-cluster-management.io/v1
         kind: ConfigurationPolicy
