@@ -50,6 +50,8 @@ spec:
                     - openshift-cluster-csi-drivers
                     - openshift-kube-controller-manager-operator
                     - openshift-kube-controller-manager
+                    - openshift*
+                    - hive
                     processes:
                      - "*"
     - objectDefinition:
@@ -78,19 +80,18 @@ spec:
                       names:
                         kind: BlockedNamespace
                   targets:
-                    - target: admission.k8s.gatekeeper.sh
-                      rego: |
+                    - rego: |
+
                         package k8sconstraints.example 
-                        
-                        violation[{"msg": msg}] {
-                           input.request.object.kind == "Namespace"
-                           #cluster_name := input.template.labels["cluster-name"] 
-                           namespace_name = input.request.object.metadata.name
-                           whitelist := input.parameters.name
-                           #if not cluster_name == namespace_name
-                           not whitelist[namespace_name]
-                           msg := sprintf("Namespace %v is not in the whitelist of allowed namespaces", [namespace_name])
+
+                        violation[{"msg": msg, "details": {}}] {
+                          input.review.object.kind == "Namespace"
+                          namespace_name = input.review.object.metadata.name
+                          whitelist := input.parameters.name
+                          not contains(whitelist,namespace_name) 
+                          msg := sprintf("Namespace %v is not in the whitelist of allowed namespaces", [namespace_name])
                         }   
+                      target: admission.k8s.gatekeeper.sh 
     - objectDefinition:
         apiVersion: policy.open-cluster-management.io/v1
         kind: ConfigurationPolicy
