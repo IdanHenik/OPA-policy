@@ -120,7 +120,7 @@ spec:
                         kinds:
                           - Namespace
                   parameters:     
-                    name: ("test1","test2","test3")
+                    name: ("im-vaild","ns-demo","test3")
                  
 ---
 apiVersion: policy.open-cluster-management.io/v1
@@ -147,4 +147,10 @@ spec:
     - status: "True"
       type: ManagedClusterConditionAvailable
   clusterSelector:
-    matchExpressions: []
+    matchExpressions: 
+      - key: name
+        operator: In
+        values:
+          - edge
+
+      
