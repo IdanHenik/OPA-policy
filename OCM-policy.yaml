@@ -52,6 +52,7 @@ spec:
                     - openshift-kube-controller-manager
                     - openshift*
                     - hive
+                    - gatekeeper-system
                     - '{{ fromClusterClaim "name" }}'
                     processes:
                      - "*"
