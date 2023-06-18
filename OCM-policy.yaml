@@ -121,7 +121,7 @@ spec:
                         kinds:
                           - Namespace
                   parameters:     
-                    name: ("im-vaild","ns-demo","test3")
+                    name: ("im-vaild","ns-demo","webserver-app-12")
                  
 ---
 apiVersion: policy.open-cluster-management.io/v1
