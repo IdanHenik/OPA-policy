@@ -152,6 +152,6 @@ spec:
       - key: name
         operator: In
         values:
-          - edge
+          - hubs
 
       
